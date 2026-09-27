@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "op3",
   "display_name": "OP3",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Open podcast analytics from OP3 in Claude: downloads, listeners, retention, geography and apps.",
   "long_description": "22 read-only tools over OP3, the Open Podcast Prefix Project: downloads, unique listeners, retention cohorts, geography, app and device share, listening patterns and episode curves for any show with the OP3 prefix. Works with no token on OP3's shared preview token.",
   "author": {

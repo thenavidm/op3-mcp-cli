@@ -1,6 +1,6 @@
 {
   "name": "@thenavidm/op3-mcp-cli",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "OP3 MCP server and CLI for Claude Code, Codex and AI agents. 22 tools for open podcast analytics: downloads, unique listeners, retention, geography, app and device share, listening patterns and episode curves.",
   "type": "module",
   "main": "./dist/index.js",

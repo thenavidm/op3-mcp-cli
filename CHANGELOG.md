@@ -10,6 +10,10 @@
 zod stays on 3.x. The SDK's tool registration is built against it, and 4.x
 changes the shape the SDK reads.
 
+## 1.2.1, 2026-09-27
+
+**The version is right.** The server told MCP apps, and `--version` printed, 1.0.0 since 1.1.0, because the constant was never bumped. It now matches package.json, and a test keeps it that way.
+
 ## 1.2.0, 2026-09-27
 
 **A CLI.** `op3-cli` runs every tool as a shell command, through the same tools, handlers and client the MCP server uses, so the two cannot drift. `--agent` prints JSON on one line, `--select` keeps the fields you name, and `op3-cli schema <command>` prints what an MCP app receives. Exit codes follow the house contract: 2 usage, 3 not found, 4 auth, 5 API, 7 rate limited.

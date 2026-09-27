@@ -34,7 +34,7 @@ import type {
   TopAppsResponse,
 } from "./types.js";
 
-export const VERSION = "1.0.0";
+export const VERSION = "1.2.1";
 
 type QueryParams = Record<string, string | number | boolean | string[] | undefined>;
 
