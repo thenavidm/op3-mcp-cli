@@ -2,10 +2,10 @@
 
 # OP3 MCP
 
-[![Stars](https://img.shields.io/github/stars/thenavidm/op3-mcp?style=flat&logo=github&label=Stars)](https://github.com/thenavidm/op3-mcp)
-[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/thenavidm/op3-mcp/blob/main/LICENSE)
-[![npm](https://img.shields.io/npm/v/@thenavidm/op3-mcp?color=orange&label=npm)](https://www.npmjs.com/package/@thenavidm/op3-mcp)
-[![Downloads](https://img.shields.io/npm/dm/@thenavidm/op3-mcp?color=green&label=downloads)](https://www.npmjs.com/package/@thenavidm/op3-mcp)
+[![Stars](https://img.shields.io/github/stars/thenavidm/op3-mcp-cli?style=flat&logo=github&label=Stars)](https://github.com/thenavidm/op3-mcp-cli)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://github.com/thenavidm/op3-mcp-cli/blob/main/LICENSE)
+[![npm](https://img.shields.io/npm/v/@thenavidm/op3-mcp-cli?color=orange&label=npm)](https://www.npmjs.com/package/@thenavidm/op3-mcp-cli)
+[![Downloads](https://img.shields.io/npm/dm/@thenavidm/op3-mcp-cli?color=green&label=downloads)](https://www.npmjs.com/package/@thenavidm/op3-mcp-cli)
 [![YouTube](https://img.shields.io/badge/YouTube-@thenavidm-red?logo=youtube&logoColor=white)](https://youtube.com/@thenavidm?sub_confirmation=1)
 [![X](https://img.shields.io/badge/X-@thenavidm-black?logo=x)](https://x.com/thenavidm)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-thenavidm-0A66C2?logo=linkedin&logoColor=white)](https://linkedin.com/in/thenavidm)
@@ -16,9 +16,42 @@ That is why its numbers differ from Apple's or Spotify's, which each report only
 
 22 tools, including unique listeners, retention cohorts and episode benchmark curves that OP3's own API does not expose.
 
-Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp).
+Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli).
 
 <img src="https://cdn.navid.media/repos/op3-mcp.gif?v=1" alt="Claude Code using the OP3 MCP server" width="520">
+
+## Two ways to use it
+
+### Command line
+
+`op3-cli` runs every tool as a command. Agents that run commands, like
+Claude Code, Codex and OpenCode, use it on their own, and you can type the same
+commands in a terminal, a script or a cron job:
+
+```bash
+npm install -g @thenavidm/op3-mcp-cli
+op3-cli                                   # every command
+op3-cli op3-global-app-share --agent
+op3-cli op3-get-show --identifier https://feeds.example.com/show.xml
+op3-cli op3-show-downloads --help
+```
+
+Every command reads OP3's public data, so nothing asks for `--confirm`. `--agent` is JSON on one line for scripts and agents, and `--select a,b.c` keeps only the fields you name.
+
+`op3-cli schema <command>` prints the exact JSON Schema an MCP client
+receives for that tool.
+
+### MCP server, for AI agents
+
+`op3-mcp` is what Claude Code, Claude Desktop, Cursor and the rest launch.
+You never run it by hand:
+
+```bash
+claude mcp add op3 -- npx -y @thenavidm/op3-mcp-cli
+```
+
+In Claude Desktop, the [`.mcpb` extension](https://github.com/thenavidm/op3-mcp-cli/releases/latest)
+installs on a double click. Section 4 has every other client.
 
 ## Contents
 
@@ -27,10 +60,11 @@ Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_m
 3. [Setup](#3-setup-)
 4. [Connect your client](#4-connect-your-client-)
 5. [Check it worked](#5-check-it-worked-)
-6. [Tools](#7-tools-)
-7. [Reading the numbers](#8-reading-the-numbers-)
-8. [Your data](#9-your-data-)
-9. [Troubleshooting](#10-troubleshooting-)
+6. [What it costs to have connected](#6-what-it-costs-to-have-connected)
+7. [Tools](#7-tools-)
+8. [Reading the numbers](#8-reading-the-numbers-)
+9. [Your data](#9-your-data-)
+10. [Troubleshooting](#10-troubleshooting-)
 
 ## 1. What you can ask it 💬
 
@@ -57,7 +91,7 @@ OP3's own aggregated endpoints expose that, and this server does.
 Node 20 or newer. Nothing else.
 
 ```bash
-npx -y @thenavidm/op3-mcp@latest --version
+npx -y @thenavidm/op3-mcp-cli@latest --version
 ```
 
 That is the whole install. `npx` fetches it on demand, so there is nothing to
@@ -67,7 +101,7 @@ client starts the server.
 To build from source instead:
 
 ```bash
-git clone https://github.com/thenavidm/op3-mcp.git
+git clone https://github.com/thenavidm/op3-mcp-cli.git
 cd op3-mcp
 npm install
 npm run build
@@ -131,13 +165,19 @@ token.
 ```bash
 claude mcp add op3 \
   -e OP3_TOKEN=your-token \
-  -- npx -y @thenavidm/op3-mcp@latest
+  -- npx -y @thenavidm/op3-mcp-cli@latest
 ```
 
 Add `--scope user` to make it available in every project rather than just this
 one.
 
 ### Claude Desktop
+
+The short way: download the [`.mcpb` extension](https://github.com/thenavidm/op3-mcp-cli/releases/latest)
+from the latest release and double-click it. It carries its own dependencies,
+so there is no config file to edit and nothing to install first. It asks for an OP3 token, which is optional.
+
+The long way, if you would rather edit the config yourself:
 
 | Platform | Config path |
 |---|---|
@@ -149,7 +189,7 @@ one.
   "mcpServers": {
     "op3": {
       "command": "npx",
-      "args": ["-y", "@thenavidm/op3-mcp@latest"],
+      "args": ["-y", "@thenavidm/op3-mcp-cli@latest"],
       "env": { "OP3_TOKEN": "your-token" }
     }
   }
@@ -170,7 +210,7 @@ it cannot launch a local command. It needs a public HTTPS URL.
 Run the server over HTTP:
 
 ```bash
-npx -y @thenavidm/op3-mcp@latest --http --port 8000
+npx -y @thenavidm/op3-mcp-cli@latest --http --port 8000
 ```
 
 Host it somewhere with a public HTTPS URL, then in claude.ai go to
@@ -204,7 +244,7 @@ machine. It binds to `127.0.0.1` by default.
     "op3": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@thenavidm/op3-mcp@latest"],
+      "args": ["-y", "@thenavidm/op3-mcp-cli@latest"],
       "env": { "OP3_TOKEN": "your-token" }
     }
   }
@@ -218,7 +258,7 @@ machine. It binds to `127.0.0.1` by default.
 ```toml
 [mcp_servers.op3]
 command = "npx"
-args = ["-y", "@thenavidm/op3-mcp@latest"]
+args = ["-y", "@thenavidm/op3-mcp-cli@latest"]
 
 [mcp_servers.op3.env]
 OP3_TOKEN = "your-token"
@@ -243,7 +283,7 @@ docker run --rm -i -e OP3_TOKEN=your-token op3-mcp
 ## 5. Check it worked 🩺
 
 ```bash
-npx -y @thenavidm/op3-mcp@latest doctor
+npx -y @thenavidm/op3-mcp-cli@latest doctor
 ```
 
 It tests the token against the cheapest OP3 endpoint, tests the raw query
@@ -260,25 +300,32 @@ settings in force.
 
 ## 6. What it costs to have connected
 
-Every MCP server sends its whole tool list to the model on **every turn**,
-whether you mention it or not. Measured on this one:
+Both surfaces are the same program with the same 22 tools. The
+difference is when the model pays for them. Measured in Claude Code:
 
-| | Sent per turn |
-|---|---|
-| 22 tool definitions, plus the server instructions | **~7,500 tokens** |
+| | MCP server | CLI |
+|---|---|---|
+| Every message, with every tool loaded | 9,800 tokens | nothing |
+| Every message, Claude Code's default | 1,000 tokens | nothing |
+| When OP3 comes up | nothing more, or the tools it picks | 3,400 tokens for `SKILL.md`, once |
+| 20 messages with OP3 in 1, every tool loaded | 196,000 tokens | 3,400 tokens |
 
-That is the price of it being connected at all, before you ask anything. It is
-not unusual, and almost nobody publishes it.
+Claude Code's [tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)
+is on by default: it sends only the tool names and the server instructions,
+and loads a tool's full definition when the model reaches for it. An app that
+loads every tool up front pays the first line on every message, whether
+OP3 comes up or not. With the skill added, Claude Code also lists its
+one-line description, about 190 tokens.
 
-Two ways to spend less.
+To spend less, turn the server off when you are not using it, which in Claude
+Code is the `/mcp` panel.
+Or install the CLI and add the server on the days it earns its place.
 
-**Turn it off when you are not using it.** In Claude Code that is
-`@op3` to toggle, and every client has an equivalent.
-
-**Or reach for a shell instead.** A command is not in the context window, so it
-costs nothing on the turns you do not use it. It is not free either: an agent
-still needs the skill file, roughly 1,200 tokens, but only once the subject
-comes up rather than on every turn regardless.
+Measured on 2026-09-27 with Claude Code 2.1.257 on Claude Opus 5: one
+short prompt with and without the server connected, once with
+`ENABLE_TOOL_SEARCH=false` and once with the default, the difference read
+from the API's own usage figures. `SKILL.md` was measured the same way. Other
+apps and models count tokens a little differently.
 
 ## 7. Tools 🛠️
 
@@ -420,11 +467,15 @@ that this server is read-only and reaches nothing but OP3.
 | Variable | Default | Does |
 |---|---|---|
 | `OP3_TOKEN` | preview token | Your bearer token from op3.dev/api/keys |
+| `OP3_API_KEY` | unset | Accepted as an alias for `OP3_TOKEN` |
 | `OP3_REQUEST_TIMEOUT_MS` | 45000 | Per-request deadline |
 | `OP3_MIN_REQUEST_INTERVAL_MS` | 150 | Spacing between requests |
+| `OP3_MAX_RETRIES` | 3 | Retries on 429 and 5xx |
 | `OP3_MAX_ROWS` | 50000 | Cap on rows any one analysis pulls |
 | `OP3_MAX_PAGES` | 40 | Cap on continuation pages |
 | `OP3_CACHE_TTL_MS` | 300000 | Response cache lifetime, 0 disables |
+| `OP3_USER_AGENT` | op3-mcp | Sent on every request |
+| `OP3_BASE_URL` | https://op3.dev/api/1 | OP3 API root, leave alone unless you proxy it |
 | `OP3_HTTP_PORT` | 8787 | Port for `--http` |
 | `OP3_HTTP_HOST` | 127.0.0.1 | Bind address for `--http` |
 | `OP3_HTTP_TOKEN` | none | Require this bearer token on HTTP requests |
@@ -434,7 +485,7 @@ that this server is read-only and reaches nothing but OP3.
 Run `doctor` first. It names the problem in one command.
 
 ```bash
-npx -y @thenavidm/op3-mcp@latest doctor
+npx -y @thenavidm/op3-mcp-cli@latest doctor
 ```
 
 | Symptom | Cause and fix |
@@ -453,6 +504,20 @@ npx -y @thenavidm/op3-mcp@latest doctor
 <summary><b>What is an MCP server?</b></summary>
 
 An MCP server is a standard way to give an AI assistant tools it can actually call. Model Context Protocol is the agreement they speak, so any MCP client connects to any MCP server. This one exposes 22 read-only tools over OP3.
+
+</details>
+
+<details>
+<summary><b>What is the CLI?</b></summary>
+
+`op3-cli` is the same program as the MCP server, run as commands. AI agents that run commands, like Claude Code, Codex and OpenCode, use it on their own, and you can type the same commands in a terminal, a script or a cron job. Every tool is a command with dashes, so `op3_show_downloads` runs as `op3-cli op3-show-downloads`.
+
+</details>
+
+<details>
+<summary><b>Should I use the MCP server or the CLI?</b></summary>
+
+Use the MCP server in an app with no terminal, like Claude Desktop's chat. Use the CLI anywhere commands run: an agent like Claude Code, Codex or OpenCode, a script or a cron job. The MCP server's tools take up context on every message, and the CLI costs nothing until it runs.
 
 </details>
 
@@ -521,7 +586,7 @@ With `@latest` in the install line, the next published version reaches you the n
 
 ## Questions
 
-Run into a problem or have a question? [Open an issue](https://github.com/thenavidm/op3-mcp/issues) and I will help.
+Run into a problem or have a question? [Open an issue](https://github.com/thenavidm/op3-mcp-cli/issues) and I will help.
 
 ## About the author 👋
 
@@ -529,8 +594,8 @@ Navid Moazzez is a leading AI business strategist, and the host of the AI Creato
 
 **Links**
 
-- Personal website: [navid.me](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp)
-- Navid Media: [navid.media](https://navid.media?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp)
+- Personal website: [navid.me](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli)
+- Navid Media: [navid.media](https://navid.media?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli)
 - YouTube: [@thenavidm](https://youtube.com/@thenavidm?sub_confirmation=1) and [@thenavidai](https://youtube.com/@thenavidai?sub_confirmation=1)
 - X: [@thenavidm](https://x.com/thenavidm)
 - Instagram: [@thenavidm](https://instagram.com/thenavidm)
@@ -550,10 +615,10 @@ handling are all built in, so the install is two packages deep.
 
 ## License
 
-[MIT](https://github.com/thenavidm/op3-mcp/blob/main/LICENSE). Free to use, modify, and share.
+[MIT](https://github.com/thenavidm/op3-mcp-cli/blob/main/LICENSE). Free to use, modify, and share.
 
 Not affiliated with, endorsed by, or connected to the Open Podcast Prefix Project.
 
 ---
 
-© 2026 [NM Media](https://navid.media?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp). Made with ❤️ by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp).
+© 2026 [NM Media](https://navid.media?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli). Made with ❤️ by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli).

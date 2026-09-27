@@ -16,7 +16,9 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { ZodRawShape } from "zod";
-import type { ToolContext } from "./context.js";
+import { ToolContext } from "./context.js";
+import type { OP3Client } from "../api/client.js";
+import type { Config } from "../config.js";
 import { OP3Error } from "../api/errors.js";
 
 /** Read annotations. Identical across this server, because nothing writes. */
@@ -75,6 +77,20 @@ export type ToolDef = {
    */
   handler: (args: Record<string, unknown>, ctx: ToolContext) => Promise<unknown>;
 };
+
+/**
+ * Build the context a handler receives.
+ *
+ * `buildServer` used to construct this inline, which meant the CLI had to
+ * duplicate the constructor call and would quietly diverge the day the context
+ * grew a third argument. Both surfaces now come through here, so there is one
+ * definition of what a handler is handed.
+ */
+export function makeContext(client: OP3Client, config: Config): ToolContext {
+  return new ToolContext(client, config);
+}
+
+export { ToolContext };
 
 /**
  * Register one tool against a server, wrapping the handler so a thrown error

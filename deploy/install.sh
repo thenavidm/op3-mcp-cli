@@ -5,7 +5,7 @@
 # somebody can paste one line and be finished.
 set -euo pipefail
 
-PACKAGE="@thenavidm/op3-mcp@latest"
+PACKAGE="@thenavidm/op3-mcp-cli@latest"
 NAME="op3"
 
 if ! command -v node >/dev/null 2>&1; then

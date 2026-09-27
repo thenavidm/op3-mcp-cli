@@ -10,6 +10,16 @@
 zod stays on 3.x. The SDK's tool registration is built against it, and 4.x
 changes the shape the SDK reads.
 
+## 1.2.0, 2026-09-27
+
+**A CLI.** `op3-cli` runs every tool as a shell command, through the same tools, handlers and client the MCP server uses, so the two cannot drift. `--agent` prints JSON on one line, `--select` keeps the fields you name, and `op3-cli schema <command>` prints what an MCP app receives. Exit codes follow the house contract: 2 usage, 3 not found, 4 auth, 5 API, 7 rate limited.
+
+**Renamed to op3-mcp-cli**, the name every server with a CLI carries. The old package is deprecated with a pointer here, and GitHub redirects the old repo address.
+
+**A Claude Desktop extension**, attached to each release. It asks for an OP3 token, which is optional.
+
+**The context cost is measured in Claude Code** in the README. The MCP tool list is otherwise unchanged from 1.1.0, apart from 2 spellings.
+
 ## 1.1.0, 2026-09-01
 
 Tools are now exported as data. `ALL_TOOLS` is an array of

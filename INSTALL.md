@@ -21,7 +21,7 @@ which covers every show that has the prefix on its feed.
 Check it:
 
 ```bash
-npx -y @thenavidm/op3-mcp@latest doctor
+npx -y @thenavidm/op3-mcp-cli@latest doctor
 ```
 
 The token check should stop mentioning the preview token.

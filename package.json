@@ -1,11 +1,12 @@
 {
-  "name": "@thenavidm/op3-mcp",
-  "version": "1.1.0",
-  "description": "OP3 MCP server for Claude Code and AI agents. 22 tools for open podcast analytics: downloads, unique listeners, retention cohorts, four-level geography, app and device share, listening patterns, and episode benchmark curves. Works with Claude Code, Claude Desktop, Cursor, Windsurf, and any MCP-compatible client.",
+  "name": "@thenavidm/op3-mcp-cli",
+  "version": "1.2.0",
+  "description": "OP3 MCP server and CLI for Claude Code, Codex and AI agents. 22 tools for open podcast analytics: downloads, unique listeners, retention, geography, app and device share, listening patterns and episode curves.",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {
-    "op3-mcp": "dist/index.js"
+    "op3-mcp": "dist/index.js",
+    "op3-cli": "dist/index.js"
   },
   "engines": {
     "node": ">=20"
@@ -22,7 +23,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
@@ -34,10 +36,10 @@
   "homepage": "https://navid.me",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thenavidm/op3-mcp.git"
+    "url": "git+https://github.com/thenavidm/op3-mcp-cli.git"
   },
   "bugs": {
-    "url": "https://github.com/thenavidm/op3-mcp/issues"
+    "url": "https://github.com/thenavidm/op3-mcp-cli/issues"
   },
   "keywords": [
     "mcp",
@@ -52,7 +54,9 @@
     "claude",
     "claude-code",
     "ai-agents",
-    "llm-tools"
+    "llm-tools",
+    "cli",
+    "command-line-tool"
   ],
   "files": [
     "dist",

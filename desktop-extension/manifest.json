@@ -1,0 +1,59 @@
+{
+  "manifest_version": "0.2",
+  "name": "op3",
+  "display_name": "OP3",
+  "version": "1.2.0",
+  "description": "Open podcast analytics from OP3 in Claude: downloads, listeners, retention, geography and apps.",
+  "long_description": "22 read-only tools over OP3, the Open Podcast Prefix Project: downloads, unique listeners, retention cohorts, geography, app and device share, listening patterns and episode curves for any show with the OP3 prefix. Works with no token on OP3's shared preview token.",
+  "author": {
+    "name": "Navid Moazzez",
+    "url": "https://navid.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thenavidm/op3-mcp-cli"
+  },
+  "homepage": "https://github.com/thenavidm/op3-mcp-cli",
+  "documentation": "https://github.com/thenavidm/op3-mcp-cli#readme",
+  "support": "https://github.com/thenavidm/op3-mcp-cli/issues",
+  "license": "MIT",
+  "keywords": [
+    "op3",
+    "podcast",
+    "podcast-analytics",
+    "mcp"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "OP3_TOKEN": "${user_config.token}"
+      }
+    }
+  },
+  "user_config": {
+    "token": {
+      "type": "string",
+      "title": "OP3 token",
+      "description": "Optional. Your own bearer token from op3.dev/api/keys. Without one it uses OP3's shared preview token.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=20"
+    }
+  }
+}

@@ -7,3 +7,5 @@ dist/
 coverage/
 *.tsbuildinfo
 _archive/
+desktop-extension/build/
+desktop-extension/*.mcpb

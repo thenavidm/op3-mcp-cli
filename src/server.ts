@@ -13,7 +13,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { OP3Client } from "./api/client.js";
 import type { Config } from "./config.js";
 import { INJECTION_NOTICE } from "./format/frame.js";
-import { ToolContext } from "./tools/context.js";
+import { makeContext } from "./tools/kit.js";
 import { registerAllTools, TOOL_COUNT } from "./tools/index.js";
 
 export const VERSION = "1.0.0";
@@ -48,7 +48,7 @@ ${INJECTION_NOTICE}`;
 
 export function buildServer(config: Config): BuiltServer {
   const client = new OP3Client(config);
-  const ctx = new ToolContext(client, config);
+  const ctx = makeContext(client, config);
 
   const server = new McpServer(
     { name: "op3-mcp", version: VERSION },
