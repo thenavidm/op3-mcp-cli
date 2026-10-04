@@ -10,6 +10,10 @@
 zod stays on 3.x. The SDK's tool registration is built against it, and 4.x
 changes the shape the SDK reads.
 
+## 1.2.2, 2026-10-04
+
+- **`npx -y @thenavidm/op3-mcp-cli` always starts the MCP server.** npx starts whichever binary the npm registry lists first when they share one file, and the registry does not keep the published order, so an MCP client set up with this README's install line could get `op3-cli` and its command list instead of a server. A third binary named after the package now always starts the server, and npx picks it by name.
+
 ## 1.2.1, 2026-09-27
 
 **The version is right.** The server told MCP apps, and `--version` printed, 1.0.0 since 1.1.0, because the constant was never bumped. It now matches package.json, and a test keeps it that way.

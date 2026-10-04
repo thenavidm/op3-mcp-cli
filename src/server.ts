@@ -16,7 +16,7 @@ import { INJECTION_NOTICE } from "./format/frame.js";
 import { makeContext } from "./tools/kit.js";
 import { registerAllTools, TOOL_COUNT } from "./tools/index.js";
 
-export const VERSION = "1.2.1";
+export const VERSION = "1.2.2";
 
 export type BuiltServer = {
   server: McpServer;
