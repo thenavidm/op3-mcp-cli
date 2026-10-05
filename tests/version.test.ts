@@ -4,7 +4,7 @@
  */
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { VERSION as SERVER } from "../src/server.js";
+import { VERSION as SERVER } from "../src/app.js";
 import { VERSION as CLIENT } from "../src/api/client.js";
 
 const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")) as { version: string };

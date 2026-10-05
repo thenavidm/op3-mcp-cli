@@ -16,7 +16,7 @@ That is why its numbers differ from Apple's or Spotify's, which each report only
 
 22 tools, including unique listeners, retention cohorts and episode benchmark curves that OP3's own API does not expose.
 
-Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli).
+Built and maintained by [Navid Moazzez](https://navid.me?utm_source=github&utm_medium=readme&utm_campaign=op3-mcp-cli). Built on [Slipway](https://github.com/thenavidm/slipway), which turns one definition of each tool into the MCP server and the CLI.
 
 <img src="https://cdn.navid.media/repos/op3-mcp.gif?v=1" alt="Claude Code using the OP3 MCP server" width="520">
 
@@ -34,6 +34,7 @@ op3-cli                                   # every command
 op3-cli op3-global-app-share --agent
 op3-cli op3-get-show --identifier https://feeds.example.com/show.xml
 op3-cli op3-show-downloads --help
+op3-cli which listener retention          # find the command for a task
 ```
 
 Every command reads OP3's public data, so nothing asks for `--confirm`. `--agent` is JSON on one line for scripts and agents, and `--select a,b.c` keeps only the fields you name.
@@ -61,7 +62,7 @@ installs on a double click. Section 4 has every other client.
 4. [Connect your client](#4-connect-your-client-)
 5. [Check it worked](#5-check-it-worked-)
 6. [What it costs to have connected](#6-what-it-costs-to-have-connected)
-7. [Tools](#7-tools-)
+7. [Tools](#7-tools-%EF%B8%8F)
 8. [Reading the numbers](#8-reading-the-numbers-)
 9. [Your data](#9-your-data-)
 10. [Troubleshooting](#10-troubleshooting-)
@@ -88,7 +89,7 @@ OP3's own aggregated endpoints expose that, and this server does.
 
 ## 2. Quick install ⚡
 
-Node 20 or newer. Nothing else.
+Node 22 or newer. Nothing else.
 
 ```bash
 npx -y @thenavidm/op3-mcp-cli@latest --version
@@ -221,9 +222,11 @@ On Team and Enterprise plans an owner adds it first under **Organization
 settings, Connectors**, then each member enables it under **Customize,
 Connectors**.
 
-Set `OP3_HTTP_TOKEN` to require a bearer token on every request, and
-`OP3_HTTP_HOST=0.0.0.0` if it needs to accept connections from outside the
-machine. It binds to `127.0.0.1` by default.
+It binds to `127.0.0.1` by default, which is all a tunnel or a proxy on the
+same machine needs. To accept connections from outside the machine, set
+`OP3_HTTP_HOST=0.0.0.0` together with `OP3_HTTP_TOKEN`, a bearer token every
+request must send: without one, the server refuses to listen beyond this
+machine.
 
 ### Cursor
 
@@ -305,10 +308,10 @@ difference is when the model pays for them. Measured in Claude Code:
 
 | | MCP server | CLI |
 |---|---|---|
-| Every message, with every tool loaded | 9,800 tokens | nothing |
+| Every message, with every tool loaded | 9,000 tokens | nothing |
 | Every message, Claude Code's default | 1,000 tokens | nothing |
 | When OP3 comes up | nothing more, or the tools it picks | 3,400 tokens for `SKILL.md`, once |
-| 20 messages with OP3 in 1, every tool loaded | 196,000 tokens | 3,400 tokens |
+| 20 messages with OP3 in 1, every tool loaded | 180,000 tokens | 3,400 tokens |
 
 Claude Code's [tool search](https://code.claude.com/docs/en/mcp#scale-with-mcp-tool-search)
 is on by default: it sends only the tool names and the server instructions,
@@ -321,11 +324,32 @@ To spend less, turn the server off when you are not using it, which in Claude
 Code is the `/mcp` panel.
 Or install the CLI and add the server on the days it earns its place.
 
-Measured on 2026-09-27 with Claude Code 2.1.257 on Claude Opus 5: one
-short prompt with and without the server connected, once with
-`ENABLE_TOOL_SEARCH=false` and once with the default, the difference read
-from the API's own usage figures. `SKILL.md` was measured the same way. Other
-apps and models count tokens a little differently.
+Measured on 2026-10-05 against 1.2.2, with Claude Code 2.1.286 on Claude Opus
+5.5 (one short prompt with and without the server connected, once with
+`ENABLE_TOOL_SEARCH=false` and once with the default, the difference read from
+the API's own usage figures; `SKILL.md` the same way) and Codex 0.159.3 on
+gpt-6.1-sol:
+
+| Cost | 1.2.2 | 2.0.0 |
+| --- | --- | --- |
+| Claude Code, every tool loaded, every message | 9,784 | 9,031 |
+| Claude Code's default, tool search, every message | 1,030 | 1,026 |
+| `SKILL.md`, read once | 3,384 | 3,424 |
+| Codex over the CLI, one task, median of five | 84,242 | 61,677 |
+| Codex over MCP, the same task, median of five | 78,381 | 78,341 |
+
+The task was "find the command that compares listener retention between two
+periods, and the flags it requires". Every tool loaded costs less because each
+tool no longer repeats `$schema`, `additionalProperties` and an `execution`
+block. Over the CLI, every 1.2.2 run read the general help, the command list
+and the command's help, three requests that each carry the conversation so
+far; `which` answers with the command's help when one command fits well ahead
+of the rest, so 4 of five 2.0.0 runs needed two. Over MCP, Codex answered
+from the tool list without calling a tool, and read about 40,000 input tokens
+in one run of five on each version and about 78,000 in the rest. `SKILL.md`
+costs 40 more because it lists `which` and exit code 1. Other apps and models
+count tokens a little differently, and tool-list characters divided by four
+are not API usage.
 
 ## 7. Tools 🛠️
 
@@ -477,8 +501,12 @@ that this server is read-only and reaches nothing but OP3.
 | `OP3_USER_AGENT` | op3-mcp | Sent on every request |
 | `OP3_BASE_URL` | https://op3.dev/api/1 | OP3 API root, leave alone unless you proxy it |
 | `OP3_HTTP_PORT` | 8787 | Port for `--http` |
-| `OP3_HTTP_HOST` | 127.0.0.1 | Bind address for `--http` |
+| `OP3_HTTP_HOST` | 127.0.0.1 | Bind address for `--http`; anything but this machine needs `OP3_HTTP_TOKEN` |
 | `OP3_HTTP_TOKEN` | none | Require this bearer token on HTTP requests |
+| `OP3_HTTP_ALLOWED_ORIGINS` | none | Comma-separated browser origins allowed to call `--http`; a page from any other site is refused |
+| `OP3_SURFACE` | full | `search` lists three tools that find, describe and run the rest |
+| `OP3_TOOL_TIMEOUT_MS` | none | Give up on any tool after this long |
+| `OP3_DEBUG` | 0 | `1` prints debug lines on stderr |
 
 ## 10. Troubleshooting 🔧
 
@@ -607,11 +635,12 @@ If this is useful, star the repo and come say hi on [X](https://x.com/thenavidm)
 
 | Library | License | What it does |
 |---|---|---|
-| [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | MIT | The MCP server and transports |
+| [Slipway](https://github.com/thenavidm/slipway) | Apache-2.0 | The MCP server and the CLI from one definition of each tool |
+| [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) | Apache-2.0 | The MCP protocol and its transports, through Slipway |
 | [zod](https://github.com/colinhacks/zod) | MIT | Tool argument schemas and validation |
 
 Nothing else. The OP3 client, the pagination, the aggregation and the time
-handling are all built in, so the install is two packages deep.
+handling are all built in.
 
 ## License
 

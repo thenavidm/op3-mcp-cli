@@ -1,33 +1,23 @@
 /**
- * Shared plumbing for registering a tool.
+ * Shared plumbing every tool uses, now on Slipway.
  *
- * Every OP3 endpoint is a read, so the annotations are the same on all of them
- * and are applied here rather than repeated twenty-two times where they would
- * eventually drift. A client deciding what to auto-approve can trust that
- * uniformity: nothing in this server changes anything.
- *
- * The error handling is the other reason this exists. An MCP tool that throws
- * hands the client a transport-level failure, which most surface to the model as
- * a bare "the tool errored". Returning `isError` with the message keeps every
- * carefully written recovery hint in `api/errors.ts` visible to the model that
- * needs to act on it.
+ * Tool modules keep describing themselves with a Zod shape and a handler. This
+ * adapter turns each into a Slipway tool, so the MCP server, the CLI, the
+ * annotations and the error mapping come from the framework rather than a copy
+ * kept in this repo. Every OP3 endpoint is a read, so every tool is one: a
+ * client deciding what to auto-approve can trust that nothing here changes
+ * anything.
  */
 
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { ApiError, AuthError, NotFoundError, RateLimitError, SlipwayError, TimeoutError, UsageError, httpError, toolkit, z, type Tool } from "@thenavidm/slipway";
 import type { ZodRawShape } from "zod";
 import { ToolContext } from "./context.js";
 import type { OP3Client } from "../api/client.js";
 import type { Config } from "../config.js";
-import { OP3Error } from "../api/errors.js";
+import { AuthenticationError, NetworkError, OP3Error, RateLimitError as OP3RateLimitError, TimeoutError as OP3TimeoutError, ValidationError } from "../api/errors.js";
 
-/** Read annotations. Identical across this server, because nothing writes. */
-export const READ_ANNOTATIONS = {
-  readOnlyHint: true,
-  destructiveHint: false,
-  idempotentHint: true,
-  openWorldHint: true,
-} as const;
+/** What Slipway builds once per environment: the client, and the context a handler receives. */
+export type AppContext = { config: Config; client: OP3Client; tools: ToolContext };
 
 /** Drop null and undefined so a model is not handed a wall of empty fields. */
 export function stripEmpty<T>(value: T): T {
@@ -45,21 +35,26 @@ export function stripEmpty<T>(value: T): T {
   return value;
 }
 
-export function ok(data: unknown): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify(stripEmpty(data), null, 2) }],
-  };
-}
-
-export function fail(error: unknown): CallToolResult {
-  const payload =
-    error instanceof OP3Error
-      ? error.toJSON()
-      : { error: (error as Error)?.message ?? String(error), type: "Error" };
-  return {
-    content: [{ type: "text", text: JSON.stringify(payload, null, 2) }],
-    isError: true,
-  };
+/**
+ * An OP3 error as the Slipway error that carries its exit code: the HTTP status
+ * picks it, and the endpoint and OP3's own detail ride along. A plain Error is
+ * one of this server's own argument checks ("not a time OP3 understands"), so
+ * it is a usage error; anything else is unexpected.
+ */
+export function toSlipway(error: unknown): unknown {
+  if (error instanceof SlipwayError) return error;
+  if (error instanceof OP3Error) {
+    const options = { ...(error.status ? { status: error.status } : {}), details: { endpoint: error.endpoint, ...(error.detail ? { detail: error.detail } : {}) } };
+    if (error.status) return httpError(error.status, error.message, options);
+    if (error instanceof AuthenticationError) return new AuthError(error.message, options);
+    if (error instanceof OP3RateLimitError) return new RateLimitError(error.message, options);
+    if (error instanceof ValidationError) return new UsageError(error.message, options);
+    if (error instanceof OP3TimeoutError) return new TimeoutError(error.message, options);
+    if (error instanceof NetworkError) return new ApiError(error.message, options);
+    return new ApiError(error.message, options);
+  }
+  if (error instanceof Error && error.constructor === Error) return new UsageError(error.message);
+  return error;
 }
 
 export type ToolDef = {
@@ -92,33 +87,36 @@ export function makeContext(client: OP3Client, config: Config): ToolContext {
 
 export { ToolContext };
 
+const kit = toolkit<AppContext>();
+
 /**
- * Register one tool against a server, wrapping the handler so a thrown error
- * becomes a readable result rather than a transport failure.
- *
- * `schema` is a plain `ZodRawShape` rather than a generic. Nothing here needs
- * per-tool argument types: every handler validates through zod at the boundary
- * and reads its arguments by name, so the generic would only buy type inference
- * that is immediately discarded, at the cost of the SDK's conditional callback
- * type becoming unresolvable.
+ * A tool's title for the command list and `which`: its description's first
+ * clause, "A show's headline download numbers", when that is short. 1.x used the
+ * tool's name, which the CLI then printed twice on every line.
  */
-export function register(server: McpServer, def: ToolDef, ctx: ToolContext): void {
-  server.registerTool(
-    def.name,
-    {
-      title: def.name,
-      description: def.description,
-      inputSchema: def.schema,
-      annotations: { ...READ_ANNOTATIONS, title: def.name },
-    },
-    async (args: Record<string, unknown>): Promise<CallToolResult> => {
+export function shortTitle(def: ToolDef): string {
+  const clause = def.description.split(/[.:;](?:\s|$)|\n/)[0]!.trim();
+  if (clause && clause.length <= 60) return clause;
+  const words = def.name.replace(/^op3_/, "").split("_").join(" ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** One OP3 tool as a Slipway tool: a read, with nulls dropped from what it returns. */
+export function toTool(def: ToolDef): Tool<AppContext> {
+  return kit.defineTool({
+    name: def.name,
+    title: shortTitle(def),
+    description: def.description,
+    input: z.object(def.schema),
+    risk: "read",
+    handler: async (args, ctx) => {
       try {
-        return ok(await def.handler(args, ctx));
+        return stripEmpty(await def.handler(args as Record<string, unknown>, ctx.tools));
       } catch (error) {
-        return fail(error);
+        throw toSlipway(error);
       }
     },
-  );
+  });
 }
 
 /**

@@ -9,13 +9,13 @@ PACKAGE="@thenavidm/op3-mcp-cli@latest"
 NAME="op3"
 
 if ! command -v node >/dev/null 2>&1; then
-  echo "Node is not installed. op3-mcp needs Node 20 or newer: https://nodejs.org" >&2
+  echo "Node is not installed. op3-mcp needs Node 22 or newer: https://nodejs.org" >&2
   exit 1
 fi
 
 MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
-if [ "$MAJOR" -lt 20 ]; then
-  echo "Node $MAJOR is too old. op3-mcp needs 20 or newer." >&2
+if [ "$MAJOR" -lt 22 ]; then
+  echo "Node $MAJOR is too old. op3-mcp needs 22 or newer." >&2
   exit 1
 fi
 

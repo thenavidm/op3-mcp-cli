@@ -1,31 +1,16 @@
 /**
- * Assembling the server.
+ * What the server tells a model before the first tool call.
  *
- * The instructions block is doing real work here, so it is worth more than the
- * usual one-line summary. It sets three things a model cannot infer from the
- * tool list: that downloads and listeners are different quantities and which
- * tools answer which, that the cheap rolled-up tools should be preferred over
- * the raw scans, and that episode titles are third-party text. Getting that
- * into context before the first tool result is cheaper than correcting it after.
+ * It sets three things a model cannot infer from the tool list: that downloads
+ * and listeners are different quantities and which tools answer which, that the
+ * cheap rolled-up tools should be preferred over the raw scans, and that episode
+ * titles are third-party text. Getting that into context before the first tool
+ * result is cheaper than correcting it after.
  */
 
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { OP3Client } from "./api/client.js";
-import type { Config } from "./config.js";
 import { INJECTION_NOTICE } from "./format/frame.js";
-import { makeContext } from "./tools/kit.js";
-import { registerAllTools, TOOL_COUNT } from "./tools/index.js";
 
-export const VERSION = "1.2.2";
-
-export type BuiltServer = {
-  server: McpServer;
-  config: Config;
-  client: OP3Client;
-  toolCount: number;
-};
-
-const INSTRUCTIONS = `Podcast analytics from OP3, the Open Podcast Prefix Project (op3.dev). Every tool is a read; nothing here changes anything.
+export const INSTRUCTIONS = `Podcast analytics from OP3, the Open Podcast Prefix Project (op3.dev). Every tool is a read; nothing here changes anything.
 
 How to pick a tool:
 
@@ -45,17 +30,3 @@ Rolled-up figures carry an "asof" date and are usually a day behind a live dashb
 Per-listener identifiers are never returned. Audience figures are aggregates computed inside the server.
 
 ${INJECTION_NOTICE}`;
-
-export function buildServer(config: Config): BuiltServer {
-  const client = new OP3Client(config);
-  const ctx = makeContext(client, config);
-
-  const server = new McpServer(
-    { name: "op3-mcp", version: VERSION },
-    { instructions: INSTRUCTIONS },
-  );
-
-  registerAllTools(server, ctx);
-
-  return { server, config, client, toolCount: TOOL_COUNT };
-}

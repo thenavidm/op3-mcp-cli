@@ -32,8 +32,8 @@ export type Config = {
   userAgent: string;
 };
 
-function envInt(name: string, fallback: number, min = 1): number {
-  const raw = process.env[name];
+function envInt(env: NodeJS.ProcessEnv, name: string, fallback: number, min = 1): number {
+  const raw = env[name];
   if (!raw) return fallback;
   const n = Number(raw);
   if (!Number.isFinite(n) || n < min) {
@@ -52,22 +52,22 @@ function normalizeBaseUrl(raw: string | undefined): string {
   return withScheme.replace(/\/+$/, "");
 }
 
-export function loadConfig(): Config {
+export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   // OP3_TOKEN is the documented name. OP3_API_KEY is accepted because the OP3
   // site calls the page "API Keys", and a user who reads that page reaches for
   // the word they just saw.
-  const token = (process.env.OP3_TOKEN || process.env.OP3_API_KEY || "").trim() || PREVIEW_TOKEN;
+  const token = (env.OP3_TOKEN || env.OP3_API_KEY || "").trim() || PREVIEW_TOKEN;
 
   return {
     token,
     usingPreviewToken: token === PREVIEW_TOKEN,
-    baseUrl: normalizeBaseUrl(process.env.OP3_BASE_URL),
-    requestTimeoutMs: envInt("OP3_REQUEST_TIMEOUT_MS", 45_000, 1000),
-    minRequestIntervalMs: envInt("OP3_MIN_REQUEST_INTERVAL_MS", 150, 0),
-    maxRetries: envInt("OP3_MAX_RETRIES", 3, 0),
-    maxRows: envInt("OP3_MAX_ROWS", 50_000, 100),
-    maxPages: envInt("OP3_MAX_PAGES", 40, 1),
-    cacheTtlMs: envInt("OP3_CACHE_TTL_MS", 300_000, 0),
-    userAgent: process.env.OP3_USER_AGENT || "op3-mcp",
+    baseUrl: normalizeBaseUrl(env.OP3_BASE_URL),
+    requestTimeoutMs: envInt(env, "OP3_REQUEST_TIMEOUT_MS", 45_000, 1000),
+    minRequestIntervalMs: envInt(env, "OP3_MIN_REQUEST_INTERVAL_MS", 150, 0),
+    maxRetries: envInt(env, "OP3_MAX_RETRIES", 3, 0),
+    maxRows: envInt(env, "OP3_MAX_ROWS", 50_000, 100),
+    maxPages: envInt(env, "OP3_MAX_PAGES", 40, 1),
+    cacheTtlMs: envInt(env, "OP3_CACHE_TTL_MS", 300_000, 0),
+    userAgent: env.OP3_USER_AGENT || "op3-mcp",
   };
 }

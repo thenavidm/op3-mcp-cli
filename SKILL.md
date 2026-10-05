@@ -62,6 +62,7 @@ The CLI describes itself, so nothing here has to list every flag and go stale:
 ```bash
 op3-cli                    # every command, one line each
 op3-cli <command> --help   # arguments, types, which are required
+op3-cli which <words>      # the command for a task
 op3-cli schema <command>   # the exact JSON Schema an MCP client receives
 ```
 
@@ -133,7 +134,8 @@ bytes with one field.
 | Code | Meaning |
 |---|---|
 | 0 | Success |
-| 2 | Usage error, wrong or missing arguments |
+| 1 | Unexpected error |
+| 2 | Usage error, wrong or missing arguments, or an unknown command |
 | 3 | Not found |
 | 4 | Authentication required, the token was rejected |
 | 5 | API error upstream |

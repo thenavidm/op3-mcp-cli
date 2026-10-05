@@ -2,13 +2,28 @@
 
 | Component | Version | Checked |
 |---|---|---|
-| `@modelcontextprotocol/sdk` | 1.30.0 | 2026-08-31 |
-| `zod` | 3.25.76 | 2026-08-31 |
+| `@thenavidm/slipway` | 0.1.20 | 2026-10-05 |
+| MCP TypeScript SDK, through Slipway | 2.3.0 | 2026-10-05 |
+| `zod` | 4.6.5 | 2026-10-05 |
 | OP3 API | 0.1.0 | 2026-08-31 |
-| Node | >= 20 | 2026-08-31 |
+| Node | >= 22 | 2026-10-05 |
 
-zod stays on 3.x. The SDK's tool registration is built against it, and 4.x
-changes the shape the SDK reads.
+## 2.0.0, 2026-10-05
+
+Built on [Slipway](https://github.com/thenavidm/slipway) 0.1.20. The 22 tools keep their names and arguments and still only read, and every difference below was measured against 1.2.2, the last version on npm, before release.
+
+- **`which <words>` finds a command**, and `agent-context` describes every command, flag and setting as JSON. In Codex 0.159.3, finding the command that compares listener retention between two periods and its flags took a median of 61,677 input tokens over the CLI instead of 84,242 (five runs each). Every 1.2.2 run read the general help, the command list and then the command's help, three requests that each carry the conversation so far; `which` answers with the command's help when one command fits well ahead of the rest, so 4 of five 2.0.0 runs needed two.
+- **Each tool has a title.** 1.2.2 gave clients each tool's name as its title, `op3_listener_retention`. The title is now the first clause of the tool's description when that is short, "Cohort carry-over between two periods", and otherwise the name in words, "App share".
+- **OP3's status picks the exit code.** A request OP3 rejects (400 or 422) exits 2 instead of 5, and so does an argument this server checks itself, such as a show identifier it cannot read. A removed resource (410) exits 3 instead of 5. 401 and 403 still exit 4, 404 3, 429 7, and a timeout or a server error 5. An unknown command exits 2 instead of 1, and 1 now means an unexpected error.
+- **`install <client>`** adds the server to Claude Code, Codex, Claude Desktop, Cursor, VS Code or Gemini CLI in each one's own format.
+- **A smaller tool list.** Each tool no longer repeats `$schema`, `additionalProperties` and an `execution` block saying it runs no background tasks, so the list is 6,721 o200k tokens instead of 7,521, and Claude Code 2.1.286 spends 9,031 tokens a message on it with every tool loaded instead of 9,784. An argument a tool does not take is still ignored.
+- **Less to install and start.** npx installs 4 packages instead of 94: Slipway brings the MCP SDK's 2.x server package, which carries no web framework. The entry turns on Node's compile cache, and the server spends 170 ms of CPU before its first answer where 1.2.2 spent 200, and answers in 124 ms of wall time instead of 134 (median of 21 runs, taking turns on one Mac).
+- **`doctor` checks what it checked**: the token against OP3's cheapest endpoint, the raw query endpoints on their own, and the limits in force. `op3-mcp --http` keeps `OP3_HTTP_PORT`, `OP3_HTTP_HOST`, `OP3_HTTP_TOKEN` and `--port`.
+- **Docs.** README section 6 has the costs measured against 1.2.2, where it had 2026-09-27's, and `SKILL.md` lists `which` and exit code 1.
+
+### Upgrading
+
+Node 22 or later is required; 1.2.2 ran on 20. A script that read exit 5 as a rejected request or a refused argument should read 2, a removed resource 3, and an unknown command 2 where it was 1. An error's JSON keeps `error` and OP3's `status`, gains Slipway's `code` (`usage`, `auth`, `not_found`, `rate_limited`, `timeout`, `api`) and sometimes a `hint`, and moves OP3's `endpoint` and `detail` under `details`; 1.2.2's `type` is gone. `--http` now refuses to listen beyond this machine without `OP3_HTTP_TOKEN`, where 1.2.2 accepted `OP3_HTTP_HOST=0.0.0.0` on its own, and refuses a page from another site unless `OP3_HTTP_ALLOWED_ORIGINS` lists it. A missing argument's error is 16 tokens longer, for its code and a hint. `SKILL.md` is 40 tokens longer in Claude Code, because it lists `which` and exit code 1.
 
 ## 1.2.2, 2026-10-04
 
