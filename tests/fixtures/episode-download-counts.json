@@ -1,0 +1,37 @@
+{
+ "showUuid": "a18389b8a52d4112a782b32f40f73df6",
+ "showTitle": "The Changelog: Software Development, Open Source",
+ "minDownloadHour": "2026-08-25T21",
+ "maxDownloadHour": "2026-10-14T23",
+ "episodes": [
+  {
+   "itemGuid": "changelog.com/1/2834",
+   "title": "From zero to NanoClaw (Interview)",
+   "pubdate": "2026-10-09T19:00:00.000Z",
+   "downloads1": 8883,
+   "downloads3": 11900,
+   "downloadsAll": 13487
+  },
+  {
+   "itemGuid": "changelog.com/1/2836",
+   "title": "Forking Cal.com to closed source (Interview)",
+   "pubdate": "2026-09-03T20:00:00.000Z",
+   "downloads1": 8721,
+   "downloads3": 10935,
+   "downloads7": 13233,
+   "downloads30": 19502,
+   "downloadsAll": 21272
+  },
+  {
+   "itemGuid": "changelog.com/1/2831",
+   "title": "Postgres at PlanetScale (Interview)",
+   "pubdate": "2026-08-25T19:00:00.000Z",
+   "downloads1": 9037,
+   "downloads3": 11549,
+   "downloads7": 13725,
+   "downloads30": 17668,
+   "downloadsAll": 19450
+  }
+ ],
+ "queryTime": 359
+}

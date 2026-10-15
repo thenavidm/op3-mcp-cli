@@ -70,7 +70,7 @@ export const DOWNLOAD_TOOLS: ToolDef[] = [
   {
     name: "op3_episode_downloads",
     description:
-      "Per-episode download counts for a show's recent episodes: downloads in the first 1, 3, 7 and 30 days after publication, plus all-time. Use it to compare how episodes performed at equal age. Note that an empty result is normal for a small or new show, it means OP3's daily rollup has not covered it yet rather than that there is no data.",
+      "Per-episode download counts for a show's recent episodes: downloads in the first 1, 3, 7 and 30 days after publication, plus all-time, each episode named by its <guid>. A span OP3 has not reported yet, such as 30 days for a week-old episode, is null. Use it to compare how episodes performed at equal age. Note that an empty result is normal for a small or new show, it means OP3's daily rollup has not covered it yet rather than that there is no data.",
     schema: {
       identifier: identifierArg,
       limit: z
@@ -97,22 +97,26 @@ export const DOWNLOAD_TOOLS: ToolDef[] = [
         };
       }
 
+      // A span OP3 leaves out stays null, never 0: in its live answers an episode younger than
+      // seven days carries no downloads7 or downloads30 at all, so a 0 would read as a dead episode.
+      const count = (n: number | undefined): number | null => (typeof n === "number" ? n : null);
       return {
         showUuid: show.showUuid,
         showTitle: safeTitle(data.showTitle) ?? show.title,
-        asof: data.asof,
+        downloadsFrom: data.minDownloadHour,
+        downloadsTo: data.maxDownloadHour,
         episodeCount: episodes.length,
         episodes: episodes.slice(0, limit).map((e) => ({
-          episodeId: e.episodeId,
+          itemGuid: e.itemGuid,
           title: safeTitle(e.title),
           pubdate: e.pubdate,
-          firstDay: e.oneDay,
-          firstThreeDays: e.threeDay,
-          firstSevenDays: e.sevenDay,
-          firstThirtyDays: e.thirtyDay,
-          allTime: e.allTime,
+          firstDay: count(e.downloads1),
+          firstThreeDays: count(e.downloads3),
+          firstSevenDays: count(e.downloads7),
+          firstThirtyDays: count(e.downloads30),
+          allTime: count(e.downloadsAll),
         })),
-        note: ROLLUP_LAG_NOTE,
+        note: `${ROLLUP_LAG_NOTE} A span shown as null is one OP3 did not report, usually because the episode is not that old yet; compare episodes only on a span every one of them has.`,
       };
     },
   },

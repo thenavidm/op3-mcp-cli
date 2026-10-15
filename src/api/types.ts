@@ -104,23 +104,32 @@ export type ShowDownloadCountsResponse = {
   queryTime?: number;
 };
 
+/** One episode as OP3's episode-download-counts answers it. The names are OP3's own, from its API docs. */
 export type EpisodeDownloadCount = {
-  episodeId?: string;
+  /** The episode's item-level <guid>. */
+  itemGuid?: string;
   title?: string;
   pubdate?: string;
-  itemGuid?: string;
-  oneDay?: number;
-  threeDay?: number;
-  sevenDay?: number;
-  thirtyDay?: number;
-  allTime?: number;
+  /** Cumulative downloads in the episode's first day (24 hours). */
+  downloads1?: number;
+  /** First three days (72 hours). */
+  downloads3?: number;
+  /** First seven days. */
+  downloads7?: number;
+  /** First thirty days. */
+  downloads30?: number;
+  /** All-time downloads. */
+  downloadsAll?: number;
 };
 
 export type EpisodeDownloadCountsResponse = {
   showUuid?: string;
   showTitle?: string;
   episodes?: EpisodeDownloadCount[];
-  asof?: string;
+  /** ISO hour of the oldest download the counts include. */
+  minDownloadHour?: string;
+  /** ISO hour of the newest download the counts include. */
+  maxDownloadHour?: string;
   queryTime?: number;
 };
 

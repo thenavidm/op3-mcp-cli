@@ -298,7 +298,7 @@ settings in force.
 | `doctor` says the token was rejected | The key was deleted at op3.dev/api/keys, or `OP3_TOKEN` has a stray space |
 | Every show lookup returns not found | The podcast does not have the OP3 prefix on its feed. Run `op3_verify_prefix` |
 | Rolled-up tools work, raw ones time out | The window is too wide. Narrow it, or raise `OP3_REQUEST_TIMEOUT_MS` |
-| Numbers do not match the OP3 dashboard | Rolled-up figures lag by about a day. Check the `asof` field |
+| Numbers do not match the OP3 dashboard | Rolled-up figures lag by about a day. Check the `asof` field, or `downloadsTo` for episodes |
 | `npx` not found in Claude Desktop | Desktop does not inherit your shell PATH. Use the absolute path |
 
 ## 6. What it costs to have connected
@@ -370,7 +370,7 @@ Fast. Prefer these whenever they answer the question.
 | Tool | Does |
 |---|---|
 | `op3_show_downloads` | Monthly downloads, the week-by-week breakdown, and the weekly average |
-| `op3_episode_downloads` | Downloads at 1, 3, 7 and 30 days after publication, plus all-time |
+| `op3_episode_downloads` | Downloads at 1, 3, 7 and 30 days after publication, plus all-time, each episode named by its `<guid>`; a span OP3 has not reported yet is `null` |
 | `op3_compare_shows` | Several shows ranked side by side, in one request |
 
 ### Audience, from the raw rows

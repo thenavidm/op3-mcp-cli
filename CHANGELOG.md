@@ -8,6 +8,10 @@
 | OP3 API | 0.1.0 | 2026-08-31 |
 | Node | >= 22 | 2026-10-05 |
 
+## Unreleased
+
+- **Episode downloads were empty.** `op3_episode_downloads` read field names OP3 does not send, so every episode came back with its title and date and no counts. It now reads OP3's own names, `downloads1`, `downloads3`, `downloads7`, `downloads30` and `downloadsAll`, names each episode by its `itemGuid`, and gives the window of downloads counted as `downloadsFrom` and `downloadsTo` (OP3's `minDownloadHour` and `maxDownloadHour`). A span OP3 has not reported yet, such as 30 days for a week-old episode, is `null`, never 0. Tested against OP3's answer for its own example show, recorded on 2026-10-15.
+
 ## 2.0.0, 2026-10-05
 
 Built on [Slipway](https://github.com/thenavidm/slipway) 0.1.20. The 22 tools keep their names and arguments and still only read, and every difference below was measured against 1.2.2, the last version on npm, before release.
